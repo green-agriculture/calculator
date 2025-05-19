@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>خدمات الحاسبة الذكية</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      direction: rtl;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .tab-button {
+      flex: 1;
+      padding: 15px;
+      cursor: pointer;
+      font-size: 16px;
+      text-align: center;
+      border: none;
+      color: white;
+    }
+    .content {
+      display: none;
+      padding: 20px;
+      background: white;
+    }
+    .active {
+      display: block;
+    }
+    .result {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, button {
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    .print-button {
+      background: #444;
+      color: white;
+      border: none;
+      padding: 8px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 15px;
+      background: #333;
+      color: white;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="tabs">
+  <button class="tab-button" style="background: #007bff;" onclick="showTab(0)">مؤشر الإجهاد الحراري</button>
+  <button class="tab-button" style="background: #28a745;" onclick="showTab(1)">جرعة المضاد الحيوي</button>
+  <button class="tab-button" style="background: #ffc107;" onclick="showTab(2)">كمية العلف اليومية</button>
+  <button class="tab-button" style="background: #dc3545;" onclick="showTab(3)">التهوية حسب العلف</button>
+  <button class="tab-button" style="background: #17a2b8;" onclick="showTab(4)">التهوية حسب الوزن</button>
+  <button class="tab-button" style="background: #6f42c1;" onclick="showTab(5)">التهوية حسب المراوح</button>
+</div>
+
+<!-- تبويب 1: مؤشر الإجهاد الحراري -->
+<div class="content active">
+  <h3>مؤشر الإجهاد الحراري (THI)</h3>
+  <input id="temp" type="number" placeholder="درجة الحرارة (°م)">
+  <input id="humidity" type="number" placeholder="الرطوبة النسبية (%)">
+  <button onclick="calcTHI()">احسب</button>
+  <div id="res-thi" class="result"></div>
+  <button class="print-button" onclick="printResult('res-thi')">طباعة التقرير</button>
+</div>
+
+<!-- تبويب 2: جرعة المضاد الحيوي -->
+<div class="content">
+  <h3>جرعة المضاد الحيوي</h3>
+  <input id="weight-animal" type="number" placeholder="وزن الحيوان (كجم)">
+  <input id="dose-required" type="number" placeholder="الجرعة المطلوبة (مل/كجم)">
+  <input id="concentration" type="number" placeholder="تركيز الدواء (مل/مل)">
+  <button onclick="calcAntibiotic()">احسب</button>
+  <div id="res-antibiotic" class="result"></div>
+  <button class="print-button" onclick="printResult('res-antibiotic')">طباعة التقرير</button>
+</div>
+
+<!-- تبويب 3: كمية العلف اليومية -->
+<div class="content">
+  <h3>كمية العلف اليومية للعنبر</h3>
+  <input id="age" type="number" placeholder="العمر (يوم)">
+  <input id="count" type="number" placeholder="عدد الطيور">
+  <button onclick="calcFeed()">احسب</button>
+  <div id="res-feed" class="result"></div>
+  <button class="print-button" onclick="printResult('res-feed')">طباعة التقرير</button>
+</div>
+
+<!-- تبويب 4: التهوية حسب العلف -->
+<div class="content">
+  <h3>التهوية حسب كمية العلف</h3>
+  <input id="tons-feed" type="number" placeholder="كمية العلف (بالطن)">
+  <button onclick="calcVentFeed()">احسب</button>
+  <div id="res-vent-feed" class="result"></div>
+  <button class="print-button" onclick="printResult('res-vent-feed')">طباعة التقرير</button>
+</div>
+
+<!-- تبويب 5: التهوية حسب الوزن -->
+<div class="content">
+  <h3>التهوية حسب الوزن الحي</h3>
+  <input id="total-weight" type="number" placeholder="الوزن الحي الكلي (كجم)">
+  <button onclick="calcVentWeight()">احسب</button>
+  <div id="res-vent-weight" class="result"></div>
+  <button class="print-button" onclick="printResult('res-vent-weight')">طباعة التقرير</button>
+</div>
+
+<!-- تبويب 6: التهوية حسب المراوح -->
+<div class="content">
+  <h3>التهوية حسب المراوح</h3>
+  <input id="air-needed" type="number" placeholder="كمية الهواء المطلوبة (م³/د)">
+  <input id="fan-power" type="number" placeholder="قوة المروحة الواحدة (م³/د)">
+  <button onclick="calcFans()">احسب</button>
+  <div id="res-fans" class="result"></div>
+  <button class="print-button" onclick="printResult('res-fans')">طباعة التقرير</button>
+</div>
+
+<footer>صدقة جارية </footer>
+
+<script>
+  function showTab(index) {
+    const contents = document.querySelectorAll('.content');
+    contents.forEach((c, i) => c.classList.toggle('active', i === index));
+  }
+
+  function printResult(id) {
+    const content = document.getElementById(id).innerHTML;
+    const w = window.open('', '', 'height=600,width=800');
+    w.document.write('<html><head><title>تقرير الحساب</title></head><body dir="rtl">');
+    w.document.write('<h3>تقرير الحساب:</h3>');
+    w.document.write('<div>' + content + '</div>');
+    w.document.write('<br><footer>صدقة جارية </footer>');
+    w.document.write('</body></html>');
+    w.document.close();
+    w.print();
+  }
+
+  function calcTHI() {
+    const at = parseFloat(document.getElementById("temp").value);
+    const rh = parseFloat(document.getElementById("humidity").value);
+    if (isNaN(at) || isNaN(rh)) return alert("أدخل القيم الصحيحة");
+    const thi = 32.783 + 1.478 * at + 0.056 * rh;
+    let level = "";
+    if (thi < 72) level = "لا يوجد إجهاد حراري";
+    else if (thi <= 78) level = "إجهاد حراري خفيف";
+    else if (thi <= 88) level = "إجهاد حراري متوسط";
+    else if (thi <= 98) level = "إجهاد حراري مرتفع";
+    else level = "إجهاد شديد جدًا وخطر";
+    document.getElementById("res-thi").innerHTML = `THI = ${thi.toFixed(2)}<br> ${level}`;
+  }
+
+  function calcAntibiotic() {
+    const w = parseFloat(document.getElementById("weight-animal").value);
+    const d = parseFloat(document.getElementById("dose-required").value);
+    const c = parseFloat(document.getElementById("concentration").value);
+    if (isNaN(w) || isNaN(d) || isNaN(c) || c === 0) return alert("أدخل القيم الصحيحة");
+    const result = (w * d) / c;
+    document.getElementById("res-antibiotic").innerText = `الجرعة الإجمالية: ${result.toFixed(2)} مل`;
+  }
+
+  function calcFeed() {
+    const age = parseFloat(document.getElementById("age").value);
+    const count = parseFloat(document.getElementById("count").value);
+    if (isNaN(age) || isNaN(count)) return alert("أدخل القيم الصحيحة");
+    const result = age * count * 0.09 * 50;
+    document.getElementById("res-feed").innerText = `الكمية اليومية المطلوبة: ${result.toFixed(2)} جرام`;
+  }
+
+  function calcVentFeed() {
+    const tons = parseFloat(document.getElementById("tons-feed").value);
+    if (isNaN(tons)) return alert("أدخل القيمة الصحيحة");
+    const result = tons * 120;
+    document.getElementById("res-vent-feed").innerText = `التهوية المطلوبة: ${result.toFixed(2)} م³/دقيقة`;
+  }
+
+  function calcVentWeight() {
+    const kg = parseFloat(document.getElementById("total-weight").value);
+    if (isNaN(kg)) return alert("أدخل القيمة الصحيحة");
+    const perHour = kg * 1.5;
+    const perMinute = perHour / 60;
+    document.getElementById("res-vent-weight").innerHTML = `
+      التهوية بالساعة: ${perHour.toFixed(2)} م³/ساعة<br>
+      التهوية بالدقيقة: ${perMinute.toFixed(2)} م³/دقيقة
+    `;
+  }
+
+  function calcFans() {
+    const air = parseFloat(document.getElementById("air-needed").value);
+    const fan = parseFloat(document.getElementById("fan-power").value);
+    if (isNaN(air) || isNaN(fan) || fan === 0) return alert("أدخل القيم الصحيحة");
+    const result = air / fan;
+    document.getElementById("res-fans").innerText = `عدد المراوح المطلوبة: ${Math.ceil(result)}`;
+  }
+</script>
+
+</body>
+</html>
